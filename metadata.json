@@ -1,0 +1,6 @@
+{
+  "name": "CineRecap - Movie Recaps, Reviews & Watchlists",
+  "description": "Discover comprehensive movie recaps, stream availability across major platforms, user reviews, watch history, and personalized watchlists with offline support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

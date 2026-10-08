@@ -1,0 +1,130 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidUserProfile(data) {
+      return data.id is string &&
+             data.id == request.auth.uid &&
+             data.displayName is string &&
+             data.displayName.size() > 0 &&
+             data.displayName.size() <= 80;
+    }
+
+    function isValidWatchlistItem(data) {
+      return data.id is string &&
+             isValidId(data.id) &&
+             data.userId == request.auth.uid &&
+             data.movieId is string &&
+             isValidId(data.movieId) &&
+             data.movieTitle is string &&
+             data.movieTitle.size() > 0 &&
+             data.movieTitle.size() <= 200 &&
+             data.status in ['want_to_watch', 'watching', 'completed', 'favorites'];
+    }
+
+    function isValidWatchHistoryItem(data) {
+      return data.id is string &&
+             isValidId(data.id) &&
+             data.userId == request.auth.uid &&
+             data.movieId is string &&
+             isValidId(data.movieId) &&
+             data.movieTitle is string &&
+             data.movieTitle.size() > 0 &&
+             data.movieTitle.size() <= 200;
+    }
+
+    function isValidMovieReview(data) {
+      return data.id is string &&
+             isValidId(data.id) &&
+             data.userId == request.auth.uid &&
+             data.userName is string &&
+             data.userName.size() > 0 &&
+             data.userName.size() <= 80 &&
+             data.movieId is string &&
+             isValidId(data.movieId) &&
+             data.movieTitle is string &&
+             data.movieTitle.size() > 0 &&
+             data.movieTitle.size() <= 200 &&
+             data.rating is number &&
+             data.rating >= 1 &&
+             data.rating <= 10 &&
+             data.content is string &&
+             data.content.size() > 0 &&
+             data.content.size() <= 4000;
+    }
+
+    function isValidReviewLike(data) {
+      return data.userId == request.auth.uid &&
+             data.reviewId is string &&
+             isValidId(data.reviewId);
+    }
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && isValidUserProfile(incoming());
+      allow update: if isOwner(userId) && isValidUserProfile(incoming()) && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'bio', 'favoriteGenres', 'updatedAt']);
+      allow delete: if isOwner(userId);
+
+      // Watchlist subcollection
+      match /watchlist/{watchlistItemId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(watchlistItemId) && isValidWatchlistItem(incoming());
+        allow update: if isOwner(userId) && isValidId(watchlistItemId) && incoming().userId == existing().userId && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'priority', 'notes', 'updatedAt']);
+        allow delete: if isOwner(userId);
+      }
+
+      // Watch History subcollection
+      match /history/{historyItemId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(historyItemId) && isValidWatchHistoryItem(incoming());
+        allow update: if isOwner(userId) && isValidId(historyItemId) && incoming().userId == existing().userId && incoming().diff(existing()).affectedKeys().hasOnly(['completionPercentage', 'rating', 'watchedAt']);
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    // Public community reviews
+    match /reviews/{reviewId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && isValidId(reviewId) && isValidMovieReview(incoming());
+      allow update: if isSignedIn() && isValidId(reviewId) && (
+        (incoming().userId == request.auth.uid && incoming().userId == existing().userId && isValidMovieReview(incoming()) && incoming().diff(existing()).affectedKeys().hasOnly(['rating', 'headline', 'content', 'containsSpoilers', 'favoriteScene', 'updatedAt'])) ||
+        (incoming().diff(existing()).affectedKeys().hasOnly(['likesCount']) && (incoming().likesCount == existing().likesCount + 1 || incoming().likesCount == existing().likesCount - 1))
+      );
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+
+      // Reactions / Likes on reviews
+      match /likes/{likeUserId} {
+        allow get, list: if isSignedIn();
+        allow create: if isSignedIn() && request.auth.uid == likeUserId && isValidReviewLike(incoming());
+        allow delete: if isSignedIn() && request.auth.uid == likeUserId;
+      }
+    }
+  }
+}

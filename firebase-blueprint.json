@@ -1,0 +1,292 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "User UID",
+          "maxLength": 128
+        },
+        "email": {
+          "type": "string",
+          "description": "User email address",
+          "maxLength": 256
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Public display name",
+          "maxLength": 80
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "User avatar URL",
+          "maxLength": 512
+        },
+        "bio": {
+          "type": "string",
+          "description": "User biography or cinema taste",
+          "maxLength": 300
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last update"
+        }
+      },
+      "required": ["id", "displayName"]
+    },
+    "WatchlistItem": {
+      "title": "WatchlistItem",
+      "description": "Item saved to user's personalized watchlist",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Document ID (typically movieId)",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "description": "User UID who owns this entry",
+          "maxLength": 128
+        },
+        "movieId": {
+          "type": "string",
+          "description": "Identifier of the movie",
+          "maxLength": 128
+        },
+        "movieTitle": {
+          "type": "string",
+          "description": "Title of the movie",
+          "maxLength": 200
+        },
+        "moviePoster": {
+          "type": "string",
+          "description": "Poster image URL",
+          "maxLength": 512
+        },
+        "releaseYear": {
+          "type": "number",
+          "description": "Release year of the film"
+        },
+        "status": {
+          "type": "string",
+          "description": "Watchlist status category",
+          "enum": ["want_to_watch", "watching", "completed", "favorites"],
+          "maxLength": 32
+        },
+        "priority": {
+          "type": "string",
+          "description": "Watch priority level",
+          "enum": ["low", "medium", "high"],
+          "maxLength": 16
+        },
+        "notes": {
+          "type": "string",
+          "description": "Personal note or recommendation source",
+          "maxLength": 500
+        },
+        "addedAt": {
+          "type": "string",
+          "description": "ISO timestamp or server timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp or server timestamp"
+        }
+      },
+      "required": ["id", "userId", "movieId", "movieTitle", "status"]
+    },
+    "WatchHistoryItem": {
+      "title": "WatchHistoryItem",
+      "description": "History log entry of a watched movie across devices",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique record ID",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "description": "User UID who watched the movie",
+          "maxLength": 128
+        },
+        "movieId": {
+          "type": "string",
+          "description": "Identifier of the movie",
+          "maxLength": 128
+        },
+        "movieTitle": {
+          "type": "string",
+          "description": "Title of the movie",
+          "maxLength": 200
+        },
+        "moviePoster": {
+          "type": "string",
+          "description": "Poster image URL",
+          "maxLength": 512
+        },
+        "releaseYear": {
+          "type": "number",
+          "description": "Release year"
+        },
+        "watchedAt": {
+          "type": "string",
+          "description": "Timestamp when watched"
+        },
+        "completionPercentage": {
+          "type": "number",
+          "description": "Percentage watched from 0 to 100"
+        },
+        "deviceName": {
+          "type": "string",
+          "description": "Device name e.g. iPhone, Web, Mac",
+          "maxLength": 80
+        },
+        "rating": {
+          "type": "number",
+          "description": "Personal rating out of 10"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Record creation timestamp"
+        }
+      },
+      "required": ["id", "userId", "movieId", "movieTitle"]
+    },
+    "MovieReview": {
+      "title": "MovieReview",
+      "description": "User submitted movie review and recap impression",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique review ID",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "description": "Author UID",
+          "maxLength": 128
+        },
+        "userName": {
+          "type": "string",
+          "description": "Author display name",
+          "maxLength": 80
+        },
+        "userAvatar": {
+          "type": "string",
+          "description": "Author avatar URL",
+          "maxLength": 512
+        },
+        "movieId": {
+          "type": "string",
+          "description": "Movie being reviewed",
+          "maxLength": 128
+        },
+        "movieTitle": {
+          "type": "string",
+          "description": "Title of the movie",
+          "maxLength": 200
+        },
+        "moviePoster": {
+          "type": "string",
+          "description": "Poster URL",
+          "maxLength": 512
+        },
+        "rating": {
+          "type": "number",
+          "description": "Star rating out of 10"
+        },
+        "headline": {
+          "type": "string",
+          "description": "Short headline summary",
+          "maxLength": 150
+        },
+        "content": {
+          "type": "string",
+          "description": "Full review text",
+          "maxLength": 4000
+        },
+        "containsSpoilers": {
+          "type": "boolean",
+          "description": "Flag indicating if review reveals spoiler details"
+        },
+        "favoriteScene": {
+          "type": "string",
+          "description": "User's favorite scene or plot turn",
+          "maxLength": 300
+        },
+        "likesCount": {
+          "type": "number",
+          "description": "Total helpful likes"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Review creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last updated timestamp"
+        }
+      },
+      "required": ["id", "userId", "userName", "movieId", "movieTitle", "rating", "content"]
+    },
+    "ReviewLike": {
+      "title": "ReviewLike",
+      "description": "User reaction / helpful like on a review",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Document ID (userId)",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the user liking the review",
+          "maxLength": 128
+        },
+        "reviewId": {
+          "type": "string",
+          "description": "Target review ID",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp of reaction"
+        }
+      },
+      "required": ["id", "userId", "reviewId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile document"
+    },
+    "/users/{userId}/watchlist/{watchlistItemId}": {
+      "schema": "WatchlistItem",
+      "description": "Personalized watchlist items for a user"
+    },
+    "/users/{userId}/history/{historyItemId}": {
+      "schema": "WatchHistoryItem",
+      "description": "Multi-device watch history records for a user"
+    },
+    "/reviews/{reviewId}": {
+      "schema": "MovieReview",
+      "description": "Public movie reviews written by community members"
+    },
+    "/reviews/{reviewId}/likes/{userId}": {
+      "schema": "ReviewLike",
+      "description": "Likes recorded for a specific review"
+    }
+  }
+}
